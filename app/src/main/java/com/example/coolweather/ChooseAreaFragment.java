@@ -34,32 +34,35 @@ import okhttp3.Response;
 
 /**
  * Created by MangoWang on 2017/9/19.
+ * 用于加载数据的fragment
  */
 
-public class ChooseAreaFragment extends android.support.v4.app.Fragment {
 
-    public static final int LEVEL_PROVINCE = 0;
+public class ChooseAreaFragment extends android.support.v4.app.Fragment { // 继承自向下兼容的扩展包
 
-    public static final int LEVEL_CITY = 1;
+    public static final int LEVEL_PROVINCE = 0;  // 等级:省
 
-    public static final int LEVEL_COUNTY = 2;
+    public static final int LEVEL_CITY = 1;  // 等级:市
 
-    public ProgressDialog progressDialog;
+    public static final int LEVEL_COUNTY = 2;  // 等级:县
 
-    private TextView titleText;
+    public ProgressDialog progressDialog;  // 进度框
 
-    private Button backButton;
+    private TextView titleText; // 标题文本框
 
-    private ListView listView;
+    private Button backButton; // 返回上一级按钮
 
-    private ArrayAdapter<String> adapter;
+    private ListView listView; // 显示信息列表(即省,市,县)
 
-    private List<String> dataList = new ArrayList<>();
+    private ArrayAdapter<String> adapter;  // 数组适配器(用于适配ListView)
+
+    private List<String> dataList = new ArrayList<>();  // 数据列表
 
     /**
      * 省列表
      */
     private  List<Province> provinceList;
+
 
     /**
      * 市列表
@@ -90,11 +93,15 @@ public class ChooseAreaFragment extends android.support.v4.app.Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.choose_area,container,false);
+        View view = inflater.inflate(R.layout.choose_area,container,false); // 加载choose_area的布局文件
+        // 实例化空间
         titleText = (TextView)view.findViewById(R.id.title_text);
         backButton = (Button) view.findViewById(R.id.back_button);
         listView = (ListView) view.findViewById(R.id.list_view);
+
+        // 创建适配器,指定数据源和item样式
         adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,dataList);
+        // 设置适配器
         listView.setAdapter(adapter);
         return view;
     }
@@ -102,34 +109,36 @@ public class ChooseAreaFragment extends android.support.v4.app.Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        // 设置item的监听事件
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 if (currentLevel == LEVEL_PROVINCE)
                 {
-                    selectedProvince = provinceList.get(position);
+                    selectedProvince = provinceList.get(position); // 获取选中的省份
                     queryCities();
 
                 }else if (currentLevel == LEVEL_CITY)
                 {
-                    selectedCity = cityList.get(position);
+                    selectedCity = cityList.get(position);  // 获取选中的市
                     queryCounties();
                 }else if (currentLevel == LEVEL_COUNTY)
                 {
-                    String weatherId = countyList.get(position).getWeatherId();
+                    String weatherId = countyList.get(position).getWeatherId();  // 获取weatherId
 
 
-                    if (getActivity() instanceof MainActivity)
+                    // 分别在不同活动选中县城所执行的不同情况
+                    if (getActivity() instanceof MainActivity) // 在主界面的情况
                     {
                         Intent intent = new Intent(getActivity(),WeatherActivity.class);
                         intent.putExtra("weather_id",weatherId);
                         startActivity(intent);
                         getActivity().finish();
-                    }else if (getActivity() instanceof WeatherActivity)
+                    }else if (getActivity() instanceof WeatherActivity) // 在天气活动的情况
                     {
                         WeatherActivity activity = (WeatherActivity)getActivity();
-                        activity.drawerLayout.closeDrawer(GravityCompat.START);
-                        activity.swipeRefresh.setRefreshing(true);
+                        activity.drawerLayout.closeDrawer(GravityCompat.START);  // 关闭侧滑activity,必须给定一个方向
+                        activity.swipeRefresh.setRefreshing(true); // 启动下拉刷新
                         activity.requestWeather(weatherId);
                     }
 
@@ -140,7 +149,7 @@ public class ChooseAreaFragment extends android.support.v4.app.Fragment {
         });
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view) { // button的点击事件
                 if (currentLevel == LEVEL_COUNTY)
                 {
                     queryCities();
@@ -153,28 +162,29 @@ public class ChooseAreaFragment extends android.support.v4.app.Fragment {
         queryProvinces();
     }
 
+    // 请求省的数据
     private void queryProvinces()
     {
         titleText.setText("China");
-        backButton.setVisibility(View.GONE);
-        provinceList = DataSupport.findAll(Province.class);
+        backButton.setVisibility(View.GONE); // 不可见,不占用地方
+        provinceList = DataSupport.findAll(Province.class);  // 能获取到Province类型的数据集合
         if (provinceList.size()>0)
         {
-            dataList.clear();
-            for (Province province : provinceList)
+            for (Province province : provinceList) // 遍历循环添加数据
             {
                 dataList.add(province.getProvinceName());
             }
-            adapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged(); // 通知适配器刷新界面
             listView.setSelection(0);
             currentLevel = LEVEL_PROVINCE;
-        }else
+        }else  // 再一次请求所有省的信息
         {
-            String address = "http://guolin.tech/api/china";
+            String address = "http://guolin.tech/api/china"; // 发出请求
             queryFromServer(address,"province");
         }
     }
 
+    // 请求市的数据
     private void queryCities()
     {
         titleText.setText(selectedProvince.getProvinceName());
@@ -204,11 +214,12 @@ public class ChooseAreaFragment extends android.support.v4.app.Fragment {
     {
         titleText.setText(selectedCity.getCityName());
         backButton.setVisibility(View.VISIBLE);
+        // 取出特定城市号的县的集合
         countyList = DataSupport.where("cityid = ?",String.valueOf(selectedCity.getId())).find(County.class);
 
         if (countyList.size()>0)
         {
-            dataList.clear();
+            dataList.clear(); // 清空dataList
             for (County county : countyList)
             {
                 dataList.add(county.getCountyName());
@@ -237,7 +248,7 @@ public class ChooseAreaFragment extends android.support.v4.app.Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        closeProgressDialog();
+                        closeProgressDialog(); // 关闭加载进度条
                         Toast.makeText(getContext(), "加载失败", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -248,18 +259,21 @@ public class ChooseAreaFragment extends android.support.v4.app.Fragment {
 
                 String responseText = response.body().string();
                 boolean result = false;
+
+                // 根据不同的级别处理信息
                 if ("province".equals(type))
                 {
-                    result = Utility.handleProvincesResponse(responseText);
+                    result = Utility.handleProvincesResponse(responseText); // 处理省
                 }else if ("city".equals(type))
                 {
-                    result = Utility.handleCitiesResponse(responseText,selectedProvince.getId());
+                    result = Utility.handleCitiesResponse(responseText,selectedProvince.getId()); // 处理市
                 }else if ("county".equals(type))
                 {
-                    result = Utility.handleCountiesResponse(responseText,selectedCity.getId());
+                    result = Utility.handleCountiesResponse(responseText,selectedCity.getId()); // 处理县
                 }
                 if (result)
                 {
+                    // 查询完后进行UI界面的刷新
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

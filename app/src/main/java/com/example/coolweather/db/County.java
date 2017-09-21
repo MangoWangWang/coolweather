@@ -40,8 +40,12 @@ public class County extends DataSupport {
         this.cityId = cityId;
     }
 
+    // 县iD
     private int id;
+    // 县名字
     private String countyName;
+    // 县的天气标识(用于获取详细的天气信息)
     private String weatherId;
+    // 城市Id
     private int cityId;
 }

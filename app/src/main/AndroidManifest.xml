@@ -2,12 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.example.coolweather">
 
+    <!--申请网络接入全权限-->
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!--修改图标和应用名字 android:icon="@mipmap/logo" -->
     <application
         android:name="org.litepal.LitePalApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/logo"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"

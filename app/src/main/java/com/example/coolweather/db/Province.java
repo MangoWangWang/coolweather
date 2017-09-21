@@ -31,10 +31,13 @@ public class Province  extends DataSupport{
         this.provinceCode = provinceCode;
     }
 
+    // 省ID
     private int id;
 
+    // 省名字
     private String provinceName;
 
+    // 省代号
     private int provinceCode;
 
 

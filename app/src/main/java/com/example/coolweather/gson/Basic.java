@@ -8,18 +8,18 @@ import com.google.gson.annotations.SerializedName;
 
 public class Basic  {
 
-    @SerializedName("city")
-    public String cityName;
+    @SerializedName("city")  // 用于gson名字的对应
+    public String cityName; // 城市名字
 
     @SerializedName("id")
-    public String weatherId;
+    public String weatherId;  // 天气标识符
 
-    public Update update;
+    public Update update;   // 更新时间类
 
     public class Update
     {
         @SerializedName("loc")
-        public String updateTime;
+        public String updateTime; // 更新时间
     }
 
 

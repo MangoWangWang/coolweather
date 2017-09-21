@@ -39,41 +39,42 @@ import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
 
-    private ScrollView weatherLayout;
+    private ScrollView weatherLayout; // 天气布局
 
-    private TextView titleCity;
+    private TextView titleCity; // 城市标题
 
-    private TextView titleUpdateTime;
+    private TextView titleUpdateTime; // 更新时间
 
-    private TextView degreeText;
+    private TextView degreeText; // 实时温度
 
-    private TextView weatherInfoText;
+    private TextView weatherInfoText; // 天气消息
 
-    private LinearLayout forecastLayout;
+    private LinearLayout forecastLayout;  // 预测布局
 
-    private TextView aqiText;
+    private TextView aqiText;  // 空气程度
 
-    private TextView pm25Text;
+    private TextView pm25Text; // pm2.5程度
 
-    private TextView comfortText;
+    private TextView comfortText; // 舒适度
 
-    private TextView carWashText;
+    private TextView carWashText; // 洗车建议
 
-    private TextView sportText;
+    private TextView sportText; // 运用建议
 
-    private ImageView bingPicImg;
+    private ImageView bingPicImg; // 每日背景图片(必应)
 
-    public SwipeRefreshLayout swipeRefresh;
+    public SwipeRefreshLayout swipeRefresh; // 下拉刷新控件
 
-    public DrawerLayout drawerLayout;
+    public DrawerLayout drawerLayout;  // 侧滑面版
 
-    private Button navButton;
+    private Button navButton; // 导航按钮
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 版本号大于或等于21时候生效
+        // 将背景融入系统状态栏(即最上的)
         if(Build.VERSION.SDK_INT>=21)
         {
             View decorView = getWindow().getDecorView();
@@ -84,10 +85,11 @@ public class WeatherActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_weather);
 
-        // 处理侧滑时间
+        // 处理侧滑事件
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navButton = (Button) findViewById(R.id.nav_button);
 
+        // 以开始方式打开侧滑面板
         navButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -138,7 +140,7 @@ public class WeatherActivity extends AppCompatActivity {
         {
             // 无缓存时去服务器查询天气
             weatherId = getIntent().getStringExtra("weather_id");
-            weatherLayout.setVisibility(View.INVISIBLE);
+            weatherLayout.setVisibility(View.INVISIBLE); // 不可见,但暂用位置
             requestWeather(weatherId);
         }
 
@@ -162,6 +164,7 @@ public class WeatherActivity extends AppCompatActivity {
         String bingPic = prefs.getString("bing_pic",null);
         if(bingPic != null)
         {
+            // 裁剪图片并放到相应控件中
             Glide.with(this).load(bingPic).into(bingPicImg);
         }else
         {
@@ -174,6 +177,7 @@ public class WeatherActivity extends AppCompatActivity {
      */
     public void requestWeather(final String weatherId)
     {
+        // 请求天气字符串
         String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId+"&key=0a08e3292b144910bf0e6742b7465222";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
@@ -183,11 +187,13 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                        // 表示刷新请求结束,并隐藏进度条
                         swipeRefresh.setRefreshing(false);
                     }
                 });
             }
 
+            // 返回成功后处理方法
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText = response.body().string();
@@ -195,10 +201,12 @@ public class WeatherActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (weather !=null && "ok".equals(weather.status))
+                        if (weather !=null && "ok".equals(weather.status)) // 判定返回状态
                         {
+                            // 获取默认的preferenceManager
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather",responseText);
+                            // 写入preference文件中
                             editor.apply();
                             showWeatherInfo(weather);
                         }else
@@ -241,6 +249,7 @@ public class WeatherActivity extends AppCompatActivity {
             infoText.setText(forecast.more.info);
             maxText.setText(forecast.temperature.max);
             minText.setText(forecast.temperature.min);
+            // 将View添加到预测天气布局上
             forecastLayout.addView(view);
         }
         if (weather.aqi !=null)

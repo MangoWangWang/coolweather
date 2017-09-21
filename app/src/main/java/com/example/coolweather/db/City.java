@@ -40,12 +40,16 @@ public class City extends DataSupport {
         this.provinceId = provinceId;
     }
 
+    // 城市Id
     private int id;
 
+    // 城市名字
     private String cityName;
 
+    // 城市代号
     private int cityCode;
 
+    // 省Id
     private int provinceId;
 
 }

@@ -13,16 +13,16 @@ import java.util.List;
  */
 public class Weather {
 
-    public String status;
+    public String status; // 返回信息状态(ok表示成功)
 
-    public Basic basic;
+    public Basic basic; // 基础信息
 
-    public AQI aqi;
+    public AQI aqi; // 空气质量
 
-    public Now now;
+    public Now now;  // 实时状况
 
-    public Suggestion suggestion;
+    public Suggestion suggestion; // 一些建议
 
     @SerializedName("daily_forecast")
-    public List<Forecast> forecastList;
+    public List<Forecast> forecastList; // 天气预报(未来三天)
 }
